@@ -42,3 +42,31 @@ body {
 .animate-blink {
   animation: blink 1s step-end infinite;
 }
+
+@keyframes flicker-in {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  20% {
+    opacity: 0.15;
+  }
+  30% {
+    opacity: 1;
+  }
+  45% {
+    opacity: 0.35;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.animate-flicker-in {
+  animation: flicker-in 160ms steps(1, end);
+}
