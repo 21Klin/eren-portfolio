@@ -28,6 +28,11 @@ body {
   font-family: var(--font-sans);
 }
 
+.custom-cursor-active,
+.custom-cursor-active * {
+  cursor: none !important;
+}
+
 @keyframes blink {
   0%,
   49% {

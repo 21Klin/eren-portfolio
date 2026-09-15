@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { JetBrains_Mono, Inter } from "next/font/google";
 import { BootController } from "@/components/boot/boot-controller";
 import { ParticleBackground } from "@/components/background/particle-field";
+import { CustomCursor } from "@/components/cursor/custom-cursor";
 import "./globals.css";
 
 const jetbrainsMono = JetBrains_Mono({
@@ -29,6 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ParticleBackground />
         <BootController />
+        <CustomCursor />
         {children}
       </body>
     </html>
