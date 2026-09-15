@@ -70,3 +70,143 @@ body {
 .animate-flicker-in {
   animation: flicker-in 160ms steps(1, end);
 }
+
+@keyframes established-flicker {
+  0% {
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  14% {
+    opacity: 0.2;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.animate-established-flicker {
+  animation: established-flicker 260ms steps(1, end);
+}
+
+@keyframes glitch {
+  0%,
+  100% {
+    transform: translate(0, 0);
+    clip-path: inset(0 0 0 0);
+    text-shadow: none;
+  }
+  10% {
+    transform: translate(-4px, 2px);
+    clip-path: inset(8% 0 62% 0);
+    text-shadow: -2px 0 #ff004c, 2px 0 #00f0ff;
+  }
+  20% {
+    transform: translate(3px, -2px);
+    clip-path: inset(58% 0 6% 0);
+    text-shadow: 2px 0 #ff004c, -2px 0 #00f0ff;
+  }
+  30% {
+    transform: translate(-3px, 1px);
+    clip-path: inset(28% 0 42% 0);
+    text-shadow: -1px 0 #ff004c, 1px 0 #00f0ff;
+  }
+  40% {
+    transform: translate(4px, -1px);
+    clip-path: inset(2% 0 82% 0);
+    text-shadow: 3px 0 #ff004c, -3px 0 #00f0ff;
+  }
+  50% {
+    transform: translate(-2px, 2px);
+    clip-path: inset(68% 0 12% 0);
+    text-shadow: -2px 0 #ff004c, 2px 0 #00f0ff;
+  }
+  60% {
+    transform: translate(2px, -3px);
+    clip-path: inset(18% 0 52% 0);
+    text-shadow: 1px 0 #ff004c, -1px 0 #00f0ff;
+  }
+  70% {
+    transform: translate(-4px, 1px);
+    clip-path: inset(48% 0 22% 0);
+    text-shadow: -3px 0 #ff004c, 3px 0 #00f0ff;
+  }
+  80% {
+    transform: translate(3px, -2px);
+    clip-path: inset(4% 0 72% 0);
+    text-shadow: 2px 0 #ff004c, -2px 0 #00f0ff;
+  }
+  90% {
+    transform: translate(-1px, 1px);
+    clip-path: inset(38% 0 32% 0);
+    text-shadow: none;
+  }
+}
+
+.animate-glitch {
+  animation: glitch 480ms steps(2, end);
+}
+
+@keyframes noise-flash {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.5;
+  }
+  20% {
+    opacity: 0.08;
+  }
+  32% {
+    opacity: 0.6;
+  }
+  48% {
+    opacity: 0.05;
+  }
+  64% {
+    opacity: 0.4;
+  }
+  80% {
+    opacity: 0;
+  }
+}
+
+.animate-noise-flash {
+  animation: noise-flash 480ms steps(1, end);
+}
+
+@keyframes white-flash {
+  0% {
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.animate-white-flash {
+  animation: white-flash 520ms ease-out forwards;
+}
+
+@keyframes zoom-out {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.15);
+    opacity: 0;
+  }
+}
+
+.animate-zoom-out {
+  animation: zoom-out 520ms ease-in forwards;
+}
