@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { ACCENT_COLOR } from "@/lib/theme";
 
@@ -10,6 +10,20 @@ const SPREAD = 12;
 const DRIFT_AMPLITUDE = 0.15;
 const REPEL_RADIUS = 1.4;
 const REPEL_STRENGTH = 0.6;
+const FRAME_CAP_FPS = 60;
+
+// This canvas runs behind the entire site for as long as someone's on the
+// page, so cap it to a fixed rate instead of redrawing at the display's
+// native refresh rate (which can be 120-240Hz on modern laptops) — pure
+// battery/GPU cost for a decorative background. Requires frameloop="demand"
+// on <Canvas>, since that's what stops it from auto-rendering every tick.
+function useFrameCap(fps: number) {
+  const invalidate = useThree((state) => state.invalidate);
+  useEffect(() => {
+    const interval = setInterval(invalidate, 1000 / fps);
+    return () => clearInterval(interval);
+  }, [invalidate, fps]);
+}
 
 function useParticleBase(count: number, spread: number) {
   return useMemo(() => {
@@ -56,6 +70,8 @@ function ParticlePoints() {
   const pointsRef = useRef<THREE.Points>(null);
   const cursorNDC = useCursorNDC();
   const unprojected = useMemo(() => new THREE.Vector3(), []);
+
+  useFrameCap(FRAME_CAP_FPS);
 
   useFrame((state) => {
     const { camera, clock } = state;
@@ -124,6 +140,7 @@ export function ParticleBackground() {
   return (
     <div className="pointer-events-none fixed inset-0 -z-10">
       <Canvas
+        frameloop="demand"
         camera={{ position: [0, 0, 6], fov: 50 }}
         dpr={[1, 1.5]}
         gl={{ antialias: true, alpha: true }}
