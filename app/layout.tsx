@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Inter } from "next/font/google";
-import { BootSequence } from "@/components/boot/boot-sequence";
+import { BootController } from "@/components/boot/boot-controller";
 import "./globals.css";
 
 const jetbrainsMono = JetBrains_Mono({
@@ -26,7 +26,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${jetbrainsMono.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <BootSequence />
+        <BootController />
         {children}
       </body>
     </html>

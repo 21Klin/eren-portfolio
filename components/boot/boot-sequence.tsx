@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { hero } from "@/lib/data/site-content";
+import { hasSeenBoot, markBootSeen } from "@/lib/boot-session";
 
 const CHAR_DELAY_MIN = 18;
 const CHAR_DELAY_MAX = 55;
@@ -11,6 +12,7 @@ const POST_PROGRESS_PAUSE = 200;
 const GLITCH_DURATION = 480;
 const ESTABLISHED_DURATION = 700;
 const TRANSITION_DURATION = 520;
+const SKIP_APPEAR_DELAY = 1500;
 
 type Stage =
   | "typing"
@@ -23,12 +25,12 @@ type Stage =
 const NOISE_BG =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")";
 
-function useTypewriterLines(lines: string[]) {
+function useTypewriterLines(lines: string[], active: boolean) {
   const [lineIndex, setLineIndex] = useState(0);
   const [charCount, setCharCount] = useState(0);
 
   useEffect(() => {
-    if (lineIndex >= lines.length) return;
+    if (!active || lineIndex >= lines.length) return;
 
     const currentLine = lines[lineIndex];
     if (charCount >= currentLine.length) {
@@ -45,7 +47,7 @@ function useTypewriterLines(lines: string[]) {
       setCharCount((c) => c + 1);
     }, delay);
     return () => clearTimeout(timeout);
-  }, [lineIndex, charCount, lines]);
+  }, [active, lineIndex, charCount, lines]);
 
   return { lineIndex, charCount, isComplete: lineIndex >= lines.length };
 }
@@ -94,10 +96,27 @@ function useBootProgress(active: boolean) {
 
 export function BootSequence() {
   const [stage, setStage] = useState<Stage>("typing");
+  const [showSkip, setShowSkip] = useState(false);
   const { lineIndex, charCount, isComplete } = useTypewriterLines(
     hero.bootLines,
+    stage === "typing",
   );
   const percent = useBootProgress(stage === "progress");
+
+  useLayoutEffect(() => {
+    if (hasSeenBoot()) setStage("done");
+  }, []);
+
+  useEffect(() => {
+    if (stage === "done") markBootSeen();
+  }, [stage]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setShowSkip(true), SKIP_APPEAR_DELAY);
+    return () => clearTimeout(timeout);
+  }, []);
+
+  const handleSkip = () => setStage("done");
 
   useEffect(() => {
     if (stage !== "typing" || !isComplete) return;
@@ -211,6 +230,16 @@ export function BootSequence() {
 
       {stage === "transition" && (
         <div className="pointer-events-none absolute inset-0 animate-white-flash bg-white" />
+      )}
+
+      {showSkip && (stage === "typing" || stage === "progress") && (
+        <button
+          type="button"
+          onClick={handleSkip}
+          className="animate-fade-in absolute bottom-6 right-6 font-mono text-xs uppercase tracking-widest text-muted transition-colors hover:text-accent"
+        >
+          skip &gt;&gt;
+        </button>
       )}
     </div>
   );
