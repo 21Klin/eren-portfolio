@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Inter } from "next/font/google";
 import { BootController } from "@/components/boot/boot-controller";
+import { ParticleBackground } from "@/components/background/particle-field";
 import "./globals.css";
 
 const jetbrainsMono = JetBrains_Mono({
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${jetbrainsMono.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
+        <ParticleBackground />
         <BootController />
         {children}
       </body>
