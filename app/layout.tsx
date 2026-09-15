@@ -3,6 +3,8 @@ import { JetBrains_Mono, Inter } from "next/font/google";
 import { BootController } from "@/components/boot/boot-controller";
 import { ParticleBackground } from "@/components/background/particle-field";
 import { CustomCursor } from "@/components/cursor/custom-cursor";
+import { SiteNav } from "@/components/layout/site-nav";
+import { SiteFooter } from "@/components/layout/site-footer";
 import "./globals.css";
 
 const jetbrainsMono = JetBrains_Mono({
@@ -25,13 +27,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${jetbrainsMono.variable} ${inter.variable} h-full antialiased`}
+      className={`${jetbrainsMono.variable} ${inter.variable} h-full scroll-smooth antialiased motion-reduce:scroll-auto`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ParticleBackground />
         <BootController />
         <CustomCursor />
+        <SiteNav />
         {children}
+        <SiteFooter />
       </body>
     </html>
   );
