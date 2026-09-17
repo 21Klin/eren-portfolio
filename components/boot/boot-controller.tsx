@@ -3,18 +3,21 @@
 import { useState } from "react";
 import { BootSequence } from "@/components/boot/boot-sequence";
 import { clearBootSeen } from "@/lib/boot-session";
+import { useBootStatus } from "@/lib/boot-status";
 
 export function BootController() {
   const [bootKey, setBootKey] = useState(0);
+  const { markComplete, reset } = useBootStatus();
 
   const handleReplay = () => {
     clearBootSeen();
+    reset();
     setBootKey((k) => k + 1);
   };
 
   return (
     <>
-      <BootSequence key={bootKey} />
+      <BootSequence key={bootKey} onComplete={markComplete} />
       <button
         type="button"
         onClick={handleReplay}

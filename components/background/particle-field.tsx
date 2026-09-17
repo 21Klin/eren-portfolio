@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { ACCENT_COLOR } from "@/lib/theme";
+import { zoneColor } from "@/lib/particle-zone-color";
 
 const PARTICLE_COUNT = 900;
 const SPREAD = 12;
@@ -114,6 +115,11 @@ function ParticlePoints() {
       | THREE.BufferAttribute
       | undefined;
     if (attribute) attribute.needsUpdate = true;
+
+    const material = pointsRef.current?.material as
+      | THREE.PointsMaterial
+      | undefined;
+    if (material) material.color.copy(zoneColor);
   });
 
   return (

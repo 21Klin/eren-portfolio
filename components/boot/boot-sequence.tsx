@@ -94,7 +94,7 @@ function useBootProgress(active: boolean) {
   return Math.round(percent);
 }
 
-export function BootSequence() {
+export function BootSequence({ onComplete }: { onComplete?: () => void }) {
   const [stage, setStage] = useState<Stage>("typing");
   const [showSkip, setShowSkip] = useState(false);
   const { lineIndex, charCount, isComplete } = useTypewriterLines(
@@ -108,8 +108,10 @@ export function BootSequence() {
   }, []);
 
   useEffect(() => {
-    if (stage === "done") markBootSeen();
-  }, [stage]);
+    if (stage !== "done") return;
+    markBootSeen();
+    onComplete?.();
+  }, [stage, onComplete]);
 
   useEffect(() => {
     const timeout = setTimeout(() => setShowSkip(true), SKIP_APPEAR_DELAY);
