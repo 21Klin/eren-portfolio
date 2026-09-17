@@ -6,7 +6,10 @@
   --foreground: #e6faff;
   --muted: #7a8a8f;
   --accent: #00f0ff;
-  --accent-dim: #00838c;
+  /* Lightened from #00838c — that shade only cleared ~4.3:1 against the card
+     surface, short of the 4.5:1 AA floor for the small pending-badge text
+     that uses it. */
+  --accent-dim: #00a3ad;
   --font-mono: var(--font-jetbrains-mono);
   --font-sans: var(--font-inter);
 }
@@ -31,6 +34,39 @@ body {
 .custom-cursor-active,
 .custom-cursor-active * {
   cursor: none !important;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: absolute;
+  top: -3rem;
+  left: 1rem;
+  z-index: 200;
+  border: 1px solid var(--accent);
+  background: var(--surface);
+  padding: 0.5rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  transition: top 150ms ease-out;
+}
+
+.skip-link:focus-visible {
+  top: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-flicker-in,
+  .animate-fade-in,
+  .animate-pulse {
+    animation: none;
+  }
 }
 
 @keyframes blink {

@@ -7,7 +7,7 @@ import { ContactSection } from "@/components/sections/contact-section";
 
 export default function Home() {
   return (
-    <main className="flex flex-1 flex-col">
+    <main id="main" className="flex flex-1 flex-col">
       <HeroSection />
       <AboutSection />
       <ProjectsSection />

@@ -11,11 +11,14 @@ const tweenTarget = { r: zoneColor.r, g: zoneColor.g, b: zoneColor.b };
 
 export function setZoneColor(hex: string) {
   const target = new THREE.Color(hex);
+  const reducedMotion =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   gsap.to(tweenTarget, {
     r: target.r,
     g: target.g,
     b: target.b,
-    duration: 0.9,
+    duration: reducedMotion ? 0 : 0.9,
     ease: "power2.out",
     onUpdate: () => {
       zoneColor.setRGB(tweenTarget.r, tweenTarget.g, tweenTarget.b);

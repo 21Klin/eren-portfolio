@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useMediaQuery } from "@/lib/use-media-query";
 
 const TRAIL_LENGTH = 6;
 const RING_EASE = 0.2;
@@ -8,7 +9,7 @@ const INTERACTIVE_SELECTOR =
   "a, button, [role='button'], input, textarea, select, [data-cursor-hover]";
 
 export function CustomCursor() {
-  const [active, setActive] = useState(false);
+  const active = useMediaQuery("(pointer: fine)");
   const [hovering, setHovering] = useState(false);
 
   const dotOuterRef = useRef<HTMLDivElement>(null);
@@ -20,14 +21,6 @@ export function CustomCursor() {
   const history = useRef(
     Array.from({ length: TRAIL_LENGTH }, () => ({ x: -100, y: -100 })),
   );
-
-  useEffect(() => {
-    const mq = window.matchMedia("(pointer: fine)");
-    setActive(mq.matches);
-    const handleChange = (e: MediaQueryListEvent) => setActive(e.matches);
-    mq.addEventListener("change", handleChange);
-    return () => mq.removeEventListener("change", handleChange);
-  }, []);
 
   useEffect(() => {
     document.documentElement.classList.toggle("custom-cursor-active", active);

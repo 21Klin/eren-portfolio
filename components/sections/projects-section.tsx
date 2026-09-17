@@ -9,6 +9,7 @@ import {
   useTransform,
 } from "framer-motion";
 import { projects, type Project } from "@/lib/data/site-content";
+import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 
 const TILT_DEGREES = 10;
 
@@ -55,11 +56,13 @@ function ProjectCard({
   onExpand: () => void;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = usePrefersReducedMotion();
 
   const rotateX = useSpring(0, { stiffness: 250, damping: 20 });
   const rotateY = useSpring(0, { stiffness: 250, damping: 20 });
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+    if (reducedMotion) return;
     const rect = cardRef.current?.getBoundingClientRect();
     if (!rect) return;
     const px = (e.clientX - rect.left) / rect.width - 0.5;
@@ -86,7 +89,7 @@ function ProjectCard({
       ref={cardRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      style={{ rotateX, rotateY, filter }}
+      style={{ rotateX, rotateY, filter: reducedMotion ? undefined : filter }}
       className="group flex flex-col gap-4 border border-accent/20 bg-surface/60 p-6 transition-colors hover:border-accent/60"
     >
       <div className="space-y-1">
@@ -112,14 +115,14 @@ function ProjectCard({
           href={project.liveUrl}
           target="_blank"
           rel="noreferrer"
-          className="font-mono text-xs uppercase tracking-widest text-accent hover:underline"
+          className="-m-2 p-2 font-mono text-xs uppercase tracking-widest text-accent hover:underline"
         >
           View live &gt;&gt;
         </a>
         <button
           type="button"
           onClick={onExpand}
-          className="font-mono text-xs uppercase tracking-widest text-muted transition-colors hover:text-accent"
+          className="-m-2 p-2 font-mono text-xs uppercase tracking-widest text-muted transition-colors hover:text-accent"
         >
           Full brief &gt;&gt;
         </button>

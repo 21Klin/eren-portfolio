@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { hero } from "@/lib/data/site-content";
 import { useBootStatus } from "@/lib/boot-status";
+import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 
 const [role, longTitle] = hero.title.split(" — ");
 
@@ -77,13 +78,17 @@ export function HeroSection() {
 
 function HeroContent() {
   const { bootComplete } = useBootStatus();
+  const reducedMotion = usePrefersReducedMotion();
   const [stage, setStage] = useState<Stage>("idle");
 
   useEffect(() => {
     if (!bootComplete || stage !== "idle") return;
-    const timeout = setTimeout(() => setStage("name"), KICKER_HOLD);
+    const timeout = setTimeout(
+      () => setStage(reducedMotion ? "title" : "name"),
+      reducedMotion ? 0 : KICKER_HOLD,
+    );
     return () => clearTimeout(timeout);
-  }, [bootComplete, stage]);
+  }, [bootComplete, stage, reducedMotion]);
 
   const { display: nameDisplay, isComplete: nameComplete } = useTypewriter(
     hero.name,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { hero } from "@/lib/data/site-content";
 import { hasSeenBoot, markBootSeen } from "@/lib/boot-session";
 
@@ -94,7 +94,33 @@ function useBootProgress(active: boolean) {
   return Math.round(percent);
 }
 
+// This is a "read once, no live updates" external value — whether we should
+// skip straight past the boot sequence never changes mid-session — so the
+// subscribe half is a no-op. useSyncExternalStore still earns its keep here:
+// unlike a useState+useEffect read, it resolves the real client-side value
+// (sessionStorage / prefers-reduced-motion) before the first paint, with no
+// SSR/hydration mismatch and no risk of a reduced-motion user seeing even
+// one frame of the glitch/strobe transition.
+function subscribeNever() {
+  return () => {};
+}
+
+function getServerSnapshot() {
+  return false;
+}
+
+function useShouldSkipBoot() {
+  return useSyncExternalStore(
+    subscribeNever,
+    () =>
+      hasSeenBoot() ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    getServerSnapshot,
+  );
+}
+
 export function BootSequence({ onComplete }: { onComplete?: () => void }) {
+  const shouldSkipBoot = useShouldSkipBoot();
   const [stage, setStage] = useState<Stage>("typing");
   const [showSkip, setShowSkip] = useState(false);
   const { lineIndex, charCount, isComplete } = useTypewriterLines(
@@ -103,9 +129,11 @@ export function BootSequence({ onComplete }: { onComplete?: () => void }) {
   );
   const percent = useBootProgress(stage === "progress");
 
-  useLayoutEffect(() => {
-    if (hasSeenBoot()) setStage("done");
-  }, []);
+  useEffect(() => {
+    if (!shouldSkipBoot) return;
+    markBootSeen();
+    onComplete?.();
+  }, [shouldSkipBoot, onComplete]);
 
   useEffect(() => {
     if (stage !== "done") return;
@@ -153,7 +181,7 @@ export function BootSequence({ onComplete }: { onComplete?: () => void }) {
     return () => clearTimeout(timeout);
   }, [stage]);
 
-  if (stage === "done") return null;
+  if (shouldSkipBoot || stage === "done") return null;
 
   return (
     <div
@@ -238,7 +266,7 @@ export function BootSequence({ onComplete }: { onComplete?: () => void }) {
         <button
           type="button"
           onClick={handleSkip}
-          className="animate-fade-in absolute bottom-6 right-6 font-mono text-xs uppercase tracking-widest text-muted transition-colors hover:text-accent"
+          className="animate-fade-in absolute bottom-4 right-4 p-2 font-mono text-xs uppercase tracking-widest text-muted transition-colors hover:text-accent"
         >
           skip &gt;&gt;
         </button>

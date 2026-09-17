@@ -23,7 +23,7 @@ export function AchievementsSection() {
             key={g.group}
             type="button"
             onClick={() => setActiveGroup(i)}
-            className={`border px-3 py-1.5 font-mono text-[0.6rem] uppercase tracking-widest transition-colors ${
+            className={`border px-3 py-2.5 font-mono text-[0.6rem] uppercase tracking-widest transition-colors ${
               i === activeGroup
                 ? "border-accent bg-accent/10 text-accent"
                 : "border-accent/20 text-muted hover:border-accent/40 hover:text-foreground"

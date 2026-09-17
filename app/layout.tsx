@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Inter } from "next/font/google";
+import { MotionConfig } from "framer-motion";
 import { BootController } from "@/components/boot/boot-controller";
 import { ParticleBackground } from "@/components/background/particle-field";
 import { ScrollZoneController } from "@/components/background/scroll-zone-controller";
@@ -32,15 +33,20 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${jetbrainsMono.variable} ${inter.variable} h-full scroll-smooth antialiased motion-reduce:scroll-auto`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <BootStatusProvider>
-          <ParticleBackground />
-          <ScrollZoneController />
-          <BootController />
-          <CustomCursor />
-          <SiteNav />
-          {children}
-          <SiteFooter />
-        </BootStatusProvider>
+        <a href="#main" className="skip-link">
+          Skip to content
+        </a>
+        <MotionConfig reducedMotion="user">
+          <BootStatusProvider>
+            <ParticleBackground />
+            <ScrollZoneController />
+            <BootController />
+            <CustomCursor />
+            <SiteNav />
+            {children}
+            <SiteFooter />
+          </BootStatusProvider>
+        </MotionConfig>
       </body>
     </html>
   );
