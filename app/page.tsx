@@ -2,11 +2,9 @@ import { HeroSection } from "@/components/sections/hero-section";
 import { AboutSection } from "@/components/sections/about-section";
 import { ProjectsSection } from "@/components/sections/projects-section";
 import { SkillsSection } from "@/components/sections/skills-section";
+import { AchievementsSection } from "@/components/sections/achievements-section";
 
-const SECTIONS = [
-  { id: "achievements", label: "Achievements", phase: "19–23" },
-  { id: "contact", label: "Contact", phase: "24" },
-];
+const SECTIONS = [{ id: "contact", label: "Contact", phase: "24" }];
 
 export default function Home() {
   return (
@@ -15,6 +13,7 @@ export default function Home() {
       <AboutSection />
       <ProjectsSection />
       <SkillsSection />
+      <AchievementsSection />
       {SECTIONS.map(({ id, label, phase }) => (
         <section
           key={id}
