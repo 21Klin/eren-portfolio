@@ -5,6 +5,7 @@ import { BootController } from "@/components/boot/boot-controller";
 import { ParticleBackground } from "@/components/background/particle-field";
 import { ScrollZoneController } from "@/components/background/scroll-zone-controller";
 import { CustomCursor } from "@/components/cursor/custom-cursor";
+import { TerminalWidget } from "@/components/terminal/terminal-widget";
 import { SiteNav } from "@/components/layout/site-nav";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { BootStatusProvider } from "@/lib/boot-status";
@@ -42,6 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <ScrollZoneController />
             <BootController />
             <CustomCursor />
+            <TerminalWidget />
             <SiteNav />
             {children}
             <SiteFooter />
