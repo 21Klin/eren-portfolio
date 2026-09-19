@@ -15,7 +15,17 @@ const PARTICLE_COUNT_MOBILE = 320;
 const SPREAD = 12;
 const DRIFT_AMPLITUDE = 0.15;
 const REPEL_RADIUS = 1.4;
-const REPEL_STRENGTH = 0.6;
+// Cursor repulsion and the idle drift anchor are now forces/targets fed into
+// a per-particle mass-spring-damper (see the useFrame integration below)
+// instead of a position computed fresh each frame — that's what gives the
+// field momentum: a swept cursor leaves particles overshooting and easing
+// back rather than snapping instantly to a distance-based offset.
+const REPEL_FORCE = 9;
+const SPRING_STRENGTH = 2.2;
+const DAMPING = 3.5;
+// Real elapsed time between frames, clamped so a stalled tab (background,
+// slow GPU) can't inject one huge dt and fling particles on the next frame.
+const MAX_PHYSICS_DT = 1 / 30;
 const FRAME_CAP_FPS = 60;
 const FRAME_CAP_FPS_STATIC = 15; // reduced motion / mobile: color still tweens, positions don't
 const POINT_SIZE = 0.06;
@@ -120,6 +130,13 @@ function ParticlePoints() {
     () => new Float32Array(basePositions),
     [basePositions],
   );
+  // Per-particle (vx, vy) — persists across frames so forces accumulate into
+  // real momentum instead of being recomputed from scratch every frame.
+  // Zero-initialized, which is the correct rest state.
+  const velocities = useMemo(
+    () => new Float32Array(particleCount * 2),
+    [particleCount],
+  );
   const particlePhases = useMemo(() => {
     const arr = new Float32Array(particleCount);
     for (let i = 0; i < particleCount; i++) arr[i] = phases[i * 2];
@@ -147,10 +164,11 @@ function ParticlePoints() {
   // update pattern. Allocating a fresh Float32Array per frame instead would
   // be a real perf regression for zero behavioral benefit.
   // eslint-disable-next-line react-hooks/immutability -- per-frame GPU buffer mutation, not React state
-  useFrame((state) => {
+  useFrame((state, delta) => {
     if (!reducedMotion) {
       const { camera, clock } = state;
       const t = clock.elapsedTime;
+      const dt = Math.min(delta, MAX_PHYSICS_DT);
 
       unprojected
         .set(cursorNDC.current.x, cursorNDC.current.y, 0.5)
@@ -160,6 +178,10 @@ function ParticlePoints() {
       const cursorX = camera.position.x + dir.x * dist;
       const cursorY = camera.position.y + dir.y * dist;
 
+      // Exponential velocity decay, frame-rate independent regardless of
+      // the fixed-fps invalidate cap above.
+      const dampingFactor = Math.exp(-DAMPING * dt);
+
       for (let i = 0; i < particleCount; i++) {
         const bx = basePositions[i * 3];
         const by = basePositions[i * 3 + 1];
@@ -167,22 +189,41 @@ function ParticlePoints() {
         const phaseX = phases[i * 2];
         const phaseY = phases[i * 2 + 1];
 
-        let x = bx + Math.sin(t * 0.15 + phaseX) * DRIFT_AMPLITUDE;
-        let y = by + Math.cos(t * 0.12 + phaseY) * DRIFT_AMPLITUDE;
+        // Anchor: where idle drift would put this particle. The spring pulls
+        // the physical position toward it rather than teleporting there.
+        const anchorX = bx + Math.sin(t * 0.15 + phaseX) * DRIFT_AMPLITUDE;
+        const anchorY = by + Math.cos(t * 0.12 + phaseY) * DRIFT_AMPLITUDE;
 
-        const dx = x - cursorX;
-        const dy = y - cursorY;
+        const curX = livePositions[i * 3];
+        const curY = livePositions[i * 3 + 1];
+
+        let vx = velocities[i * 2];
+        let vy = velocities[i * 2 + 1];
+
+        vx += (anchorX - curX) * SPRING_STRENGTH * dt;
+        vy += (anchorY - curY) * SPRING_STRENGTH * dt;
+
+        const dx = curX - cursorX;
+        const dy = curY - cursorY;
         const distSq = dx * dx + dy * dy;
         if (distSq < REPEL_RADIUS * REPEL_RADIUS) {
           const d = Math.sqrt(distSq) || 0.001;
-          const force = (1 - d / REPEL_RADIUS) * REPEL_STRENGTH;
-          x += (dx / d) * force;
-          y += (dy / d) * force;
+          const falloff = 1 - d / REPEL_RADIUS;
+          const accel = falloff * falloff * REPEL_FORCE;
+          vx += (dx / d) * accel * dt;
+          vy += (dy / d) * accel * dt;
         }
 
+        vx *= dampingFactor;
+        vy *= dampingFactor;
+
+        // eslint-disable-next-line react-hooks/immutability -- per-frame physics state mutation, not React state (see note above useFrame)
+        velocities[i * 2] = vx;
+        velocities[i * 2 + 1] = vy;
+
         // eslint-disable-next-line react-hooks/immutability -- per-frame GPU buffer mutation, not React state (see note above useFrame)
-        livePositions[i * 3] = x;
-        livePositions[i * 3 + 1] = y;
+        livePositions[i * 3] = curX + vx * dt;
+        livePositions[i * 3 + 1] = curY + vy * dt;
         livePositions[i * 3 + 2] = bz;
       }
 
