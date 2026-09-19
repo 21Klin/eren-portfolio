@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent, type PointerEvent } from "react";
 import {
   motion,
   useMotionTemplate,
@@ -10,8 +10,17 @@ import {
 } from "framer-motion";
 import { projects, type Project } from "@/lib/data/site-content";
 import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
+import { useMediaQuery } from "@/lib/use-media-query";
+import { useCardDragPhysics } from "@/lib/use-card-drag-physics";
 
 const TILT_DEGREES = 10;
+// Drag-and-flick physics is desktop-only: it needs a mouse to grab and
+// throw, "pointer: fine" is the same signal the custom cursor already gates
+// on, and skipping it on touch means one less thing competing with the
+// shader/post-processing/particle-physics background on weaker GPUs.
+// Capped by index so cutting back under load (e.g. to a single card) is a
+// one-line change rather than a structural one.
+const DRAG_PHYSICS_MAX_CARDS = 3;
 
 export function ProjectsSection() {
   const [expanded, setExpanded] = useState<Project | null>(null);
@@ -29,11 +38,12 @@ export function ProjectsSection() {
         className="grid w-full max-w-5xl gap-6 md:grid-cols-3"
         style={{ perspective: 1200 }}
       >
-        {projects.map((project) => (
+        {projects.map((project, i) => (
           <ProjectCard
             key={project.slug}
             project={project}
             onExpand={() => setExpanded(project)}
+            dragPhysicsEnabled={i < DRAG_PHYSICS_MAX_CARDS}
           />
         ))}
       </div>
@@ -51,15 +61,21 @@ export function ProjectsSection() {
 function ProjectCard({
   project,
   onExpand,
+  dragPhysicsEnabled,
 }: {
   project: Project;
   onExpand: () => void;
+  dragPhysicsEnabled: boolean;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const reducedMotion = usePrefersReducedMotion();
+  const finePointer = useMediaQuery("(pointer: fine)");
 
   const rotateX = useSpring(0, { stiffness: 250, damping: 20 });
   const rotateY = useSpring(0, { stiffness: 250, damping: 20 });
+
+  const dragEnabled = dragPhysicsEnabled && finePointer && !reducedMotion;
+  const dragPhysics = useCardDragPhysics(dragEnabled);
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     if (reducedMotion) return;
@@ -76,6 +92,16 @@ function ProjectCard({
     rotateY.set(0);
   };
 
+  // Grabbing the card is a drag; grabbing the link/button inside it is a
+  // click — don't let the card's pointerdown hijack those.
+  const handleCardPointerDown = (e: PointerEvent<HTMLDivElement>) => {
+    if (!dragEnabled) return;
+    if ((e.target as Element).closest("a, button")) return;
+    // Otherwise a drag reads as native text selection instead of a grab.
+    e.preventDefault();
+    dragPhysics.onPointerDown(e);
+  };
+
   // Cards sharpen as they cross the viewport center and blur toward the edges.
   const { scrollYProgress } = useScroll({
     target: cardRef,
@@ -89,8 +115,20 @@ function ProjectCard({
       ref={cardRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      style={{ rotateX, rotateY, filter: reducedMotion ? undefined : filter }}
-      className="group flex flex-col gap-4 border border-accent/20 bg-surface/60 p-6 transition-colors hover:border-accent/60"
+      onPointerDown={handleCardPointerDown}
+      data-cursor-hover={dragEnabled ? true : undefined}
+      style={{
+        rotateX,
+        rotateY,
+        x: dragPhysics.x,
+        y: dragPhysics.y,
+        rotateZ: dragPhysics.rotateZ,
+        filter: reducedMotion ? undefined : filter,
+        touchAction: dragEnabled ? "none" : undefined,
+        position: "relative",
+        zIndex: dragPhysics.isLifted ? 10 : undefined,
+      }}
+      className="group flex flex-col gap-4 border border-accent/20 bg-surface/60 p-6 transition-colors hover:border-accent/60 active:cursor-grabbing"
     >
       <div className="space-y-1">
         <h3 className="font-mono text-lg text-foreground group-hover:text-accent">
