@@ -220,9 +220,19 @@ export const achievements: AchievementGroup[] = [
   {
     group: "Technical Certifications",
     entries: [
-      { title: "AI Fluency: AI Capabilities & Limitations", org: "Anthropic", result: "Certification" },
+      {
+        title: "AI Fluency: AI Capabilities & Limitations",
+        org: "Anthropic",
+        result: "Certification",
+        verifyUrl: "https://verify.skilljar.com/c/5v44e4tytsvo",
+      },
       { title: "Hardware and Upgrade Support", org: "Cisco Networking Academy", result: "Certification" },
-      { title: "User Experience Design Fundamentals", org: "IBM SkillsBuild", result: "Certification" },
+      {
+        title: "User Experience Design Fundamentals",
+        org: "IBM SkillsBuild",
+        result: "Certification",
+        verifyUrl: "https://www.credly.com/badges/91fccba5-af2a-4691-bdd3-b8d84ae8f48e/public_url",
+      },
       {
         title: "Skills for Success",
         org: "#YouthEmpowered (Education Center of Pivara Skopje / Motiva)",
@@ -233,18 +243,18 @@ export const achievements: AchievementGroup[] = [
   {
     group: "HackerRank Certifications",
     entries: [
-      { title: "Software Engineer", result: "Role certification" },
-      { title: "Software Engineer Intern", result: "Role certification" },
-      { title: "Frontend Developer, React", result: "Role certification" },
-      { title: "Problem Solving — Intermediate", result: "Certification" },
-      { title: "Problem Solving — Basic", result: "Certification" },
-      { title: "JavaScript — Intermediate", result: "Certification" },
-      { title: "JavaScript — Basic", result: "Certification" },
-      { title: "Node.js — Intermediate", result: "Certification" },
-      { title: "Node.js — Basic", result: "Certification" },
-      { title: "Python — Basic", result: "Certification" },
-      { title: "CSS — Basic", result: "Certification" },
-      { title: "REST API — Intermediate", result: "Certification" },
+      { title: "Software Engineer", result: "Role certification", verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121" },
+      { title: "Software Engineer Intern", result: "Role certification", verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121" },
+      { title: "Frontend Developer, React", result: "Role certification", verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121" },
+      { title: "Problem Solving — Intermediate", result: "Certification", verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121" },
+      { title: "Problem Solving — Basic", result: "Certification", verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121" },
+      { title: "JavaScript — Intermediate", result: "Certification", verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121" },
+      { title: "JavaScript — Basic", result: "Certification", verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121" },
+      { title: "Node.js — Intermediate", result: "Certification", verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121" },
+      { title: "Node.js — Basic", result: "Certification", verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121" },
+      { title: "Python — Basic", result: "Certification", verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121" },
+      { title: "CSS — Basic", result: "Certification", verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121" },
+      { title: "REST API — Intermediate", result: "Certification", verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121" },
     ],
   },
   {
