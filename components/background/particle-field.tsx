@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { EffectComposer, Bloom, ChromaticAberration, Noise } from "@react-three/postprocessing";
+import { BlendFunction } from "postprocessing";
 import * as THREE from "three";
 import { ACCENT_COLOR } from "@/lib/theme";
 import { zoneColor } from "@/lib/particle-zone-color";
@@ -17,6 +19,7 @@ const REPEL_STRENGTH = 0.6;
 const FRAME_CAP_FPS = 60;
 const FRAME_CAP_FPS_STATIC = 15; // reduced motion / mobile: color still tweens, positions don't
 const POINT_SIZE = 0.06;
+const CHROMATIC_OFFSET: [number, number] = [0.0006, 0.0006];
 
 // Raw ShaderMaterial doesn't get three's built-in PointsMaterial sizeAttenuation
 // perspective math for free, so it's reproduced by hand here (size * resolution / -viewZ).
@@ -219,6 +222,32 @@ function ParticlePoints() {
   );
 }
 
+// Mobile keeps only bloom (cheapest pass, biggest payoff on the glow
+// sprites) — chromatic aberration and film grain are full-screen fragment
+// passes that aren't worth their cost on lower-powered GPUs.
+function PostProcessing() {
+  const isMobile = useMediaQuery("(max-width: 767px)");
+
+  return (
+    <EffectComposer multisampling={0}>
+      <Bloom
+        intensity={isMobile ? 0.5 : 0.85}
+        luminanceThreshold={0.15}
+        luminanceSmoothing={0.9}
+        mipmapBlur
+      />
+      {isMobile ? (
+        <></>
+      ) : (
+        <>
+          <ChromaticAberration offset={CHROMATIC_OFFSET} radialModulation={false} modulationOffset={0} />
+          <Noise premultiply blendFunction={BlendFunction.OVERLAY} opacity={0.05} />
+        </>
+      )}
+    </EffectComposer>
+  );
+}
+
 export function ParticleBackground() {
   return (
     <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden="true">
@@ -229,6 +258,7 @@ export function ParticleBackground() {
         gl={{ antialias: true, alpha: true }}
       >
         <ParticlePoints />
+        <PostProcessing />
       </Canvas>
     </div>
   );
