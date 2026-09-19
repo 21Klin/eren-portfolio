@@ -16,6 +16,39 @@ const REPEL_RADIUS = 1.4;
 const REPEL_STRENGTH = 0.6;
 const FRAME_CAP_FPS = 60;
 const FRAME_CAP_FPS_STATIC = 15; // reduced motion / mobile: color still tweens, positions don't
+const POINT_SIZE = 0.06;
+
+// Raw ShaderMaterial doesn't get three's built-in PointsMaterial sizeAttenuation
+// perspective math for free, so it's reproduced by hand here (size * resolution / -viewZ).
+const PARTICLE_VERTEX_SHADER = `
+  uniform float uTime;
+  uniform float uSize;
+  uniform float uResolutionY;
+  attribute float aPhase;
+  varying float vPulse;
+
+  void main() {
+    vPulse = 0.7 + 0.3 * sin(uTime * 1.6 + aPhase);
+    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+    gl_PointSize = uSize * uResolutionY * vPulse / -mvPosition.z;
+    gl_Position = projectionMatrix * mvPosition;
+  }
+`;
+
+// Radial energy-node glow — bright core plus a softer outer halo — replacing
+// the default flat square point sprite for a more distinctive "field" look.
+const PARTICLE_FRAGMENT_SHADER = `
+  uniform vec3 uColor;
+  varying float vPulse;
+
+  void main() {
+    float dist = length(gl_PointCoord - vec2(0.5)) * 2.0;
+    float halo = smoothstep(1.0, 0.0, dist);
+    float core = smoothstep(0.4, 0.0, dist);
+    vec3 color = uColor * (0.55 + core * 1.2);
+    gl_FragColor = vec4(color, halo * vPulse);
+  }
+`;
 
 // This canvas runs behind the entire site for as long as someone's on the
 // page, so cap it to a fixed rate instead of redrawing at the display's
@@ -84,6 +117,20 @@ function ParticlePoints() {
     () => new Float32Array(basePositions),
     [basePositions],
   );
+  const particlePhases = useMemo(() => {
+    const arr = new Float32Array(particleCount);
+    for (let i = 0; i < particleCount; i++) arr[i] = phases[i * 2];
+    return arr;
+  }, [phases, particleCount]);
+  const uniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uColor: { value: new THREE.Color(ACCENT_COLOR) },
+      uSize: { value: POINT_SIZE },
+      uResolutionY: { value: 800 },
+    }),
+    [],
+  );
   const pointsRef = useRef<THREE.Points>(null);
   const cursorNDC = useCursorNDC();
   const unprojected = useMemo(() => new THREE.Vector3(), []);
@@ -142,10 +189,10 @@ function ParticlePoints() {
       if (attribute) attribute.needsUpdate = true;
     }
 
-    const material = pointsRef.current?.material as
-      | THREE.PointsMaterial
-      | undefined;
-    if (material) material.color.copy(zoneColor);
+    uniforms.uColor.value.copy(zoneColor);
+    // eslint-disable-next-line react-hooks/immutability -- per-frame GPU uniform mutation, not React state (see note above useFrame)
+    uniforms.uResolutionY.value = state.size.height * state.gl.getPixelRatio();
+    if (!reducedMotion) uniforms.uTime.value = state.clock.elapsedTime;
   });
 
   return (
@@ -155,14 +202,18 @@ function ParticlePoints() {
           attach="attributes-position"
           args={[livePositions, 3]}
         />
+        <bufferAttribute
+          attach="attributes-aPhase"
+          args={[particlePhases, 1]}
+        />
       </bufferGeometry>
-      <pointsMaterial
-        color={ACCENT_COLOR}
-        size={0.035}
-        sizeAttenuation
+      <shaderMaterial
+        uniforms={uniforms}
+        vertexShader={PARTICLE_VERTEX_SHADER}
+        fragmentShader={PARTICLE_FRAGMENT_SHADER}
         transparent
-        opacity={0.7}
         depthWrite={false}
+        blending={THREE.AdditiveBlending}
       />
     </points>
   );
