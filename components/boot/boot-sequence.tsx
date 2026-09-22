@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { hero } from "@/lib/data/site-content";
 import { hasSeenBoot, markBootSeen } from "@/lib/boot-session";
+import { useSoundEngine } from "@/lib/use-sound-engine";
 
 const CHAR_DELAY_MIN = 18;
 const CHAR_DELAY_MAX = 55;
@@ -25,9 +26,20 @@ type Stage =
 const NOISE_BG =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")";
 
-function useTypewriterLines(lines: string[], active: boolean) {
+function useTypewriterLines(
+  lines: string[],
+  active: boolean,
+  onChar?: () => void,
+) {
   const [lineIndex, setLineIndex] = useState(0);
   const [charCount, setCharCount] = useState(0);
+  // Ref so this effect doesn't need onChar in its deps (it's a fresh closure
+  // every render) — the tick still fires from the exact same timeout that
+  // reveals the character, so sound and glyph never drift apart.
+  const onCharRef = useRef(onChar);
+  useEffect(() => {
+    onCharRef.current = onChar;
+  });
 
   useEffect(() => {
     if (!active || lineIndex >= lines.length) return;
@@ -45,6 +57,7 @@ function useTypewriterLines(lines: string[], active: boolean) {
       CHAR_DELAY_MIN + Math.random() * (CHAR_DELAY_MAX - CHAR_DELAY_MIN);
     const timeout = setTimeout(() => {
       setCharCount((c) => c + 1);
+      onCharRef.current?.();
     }, delay);
     return () => clearTimeout(timeout);
   }, [active, lineIndex, charCount, lines]);
@@ -121,11 +134,13 @@ function useShouldSkipBoot() {
 
 export function BootSequence({ onComplete }: { onComplete?: () => void }) {
   const shouldSkipBoot = useShouldSkipBoot();
+  const { playTick, playConnectionEstablished } = useSoundEngine();
   const [stage, setStage] = useState<Stage>("typing");
   const [showSkip, setShowSkip] = useState(false);
   const { lineIndex, charCount, isComplete } = useTypewriterLines(
     hero.bootLines,
     stage === "typing",
+    playTick,
   );
   const percent = useBootProgress(stage === "progress");
 
@@ -162,9 +177,10 @@ export function BootSequence({ onComplete }: { onComplete?: () => void }) {
 
   useEffect(() => {
     if (stage !== "glitch") return;
+    playConnectionEstablished();
     const timeout = setTimeout(() => setStage("established"), GLITCH_DURATION);
     return () => clearTimeout(timeout);
-  }, [stage]);
+  }, [stage, playConnectionEstablished]);
 
   useEffect(() => {
     if (stage !== "established") return;

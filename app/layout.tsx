@@ -8,7 +8,9 @@ import { CustomCursor } from "@/components/cursor/custom-cursor";
 import { TerminalWidget } from "@/components/terminal/terminal-widget";
 import { SiteNav } from "@/components/layout/site-nav";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { SoundToggle } from "@/components/sound/sound-toggle";
 import { BootStatusProvider } from "@/lib/boot-status";
+import { SoundEngineProvider } from "@/lib/use-sound-engine";
 import "./globals.css";
 
 const jetbrainsMono = JetBrains_Mono({
@@ -38,16 +40,19 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           Skip to content
         </a>
         <MotionConfig reducedMotion="user">
-          <BootStatusProvider>
-            <ParticleBackground />
-            <ScrollZoneController />
-            <BootController />
-            <CustomCursor />
-            <TerminalWidget />
-            <SiteNav />
-            {children}
-            <SiteFooter />
-          </BootStatusProvider>
+          <SoundEngineProvider>
+            <BootStatusProvider>
+              <ParticleBackground />
+              <ScrollZoneController />
+              <BootController />
+              <CustomCursor />
+              <TerminalWidget />
+              <SiteNav />
+              <SoundToggle />
+              {children}
+              <SiteFooter />
+            </BootStatusProvider>
+          </SoundEngineProvider>
         </MotionConfig>
       </body>
     </html>

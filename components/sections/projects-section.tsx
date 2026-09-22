@@ -117,6 +117,7 @@ function ProjectCard({
       onMouseLeave={handleMouseLeave}
       onPointerDown={handleCardPointerDown}
       data-cursor-hover={dragEnabled ? true : undefined}
+      data-sound-hover
       style={{
         rotateX,
         rotateY,
