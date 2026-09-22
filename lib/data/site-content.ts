@@ -133,7 +133,7 @@ export type Achievement = {
   location?: string;
   result: string;
   pending?: boolean;
-  certificateImage?: string;
+  certificateImages?: string[];
   verifyUrl?: string;
 };
 
@@ -151,17 +151,30 @@ export const achievements: AchievementGroup[] = [
         location: "Vilnius, Lithuania",
         result:
           "1st Place, Gold Medal, and Best Project Award (#1 overall) — the highest individual distinction awarded among all international entries at one of Europe's premier student innovation olympiads",
+        certificateImages: [
+          "/certificates/VILIPO_gold_medal_2026.jpg",
+          "/certificates/VILIPO_gold_medal_2026_v2.jpg",
+        ],
       },
       {
         title: "Infomatrix Asia 2026",
         location: "Astana, Kazakhstan",
         result:
           "Silver Medal, International Project Competition — recognized with a full scholarship to Energo University (Almaty, Kazakhstan) in acknowledgment of outstanding achievement in science, technology, and innovation",
+        certificateImages: [
+          "/certificates/InfomatrixAsia_silver_medal_diploma.jpg",
+          "/certificates/Energo_University_grant_certificate.jpg",
+          "/certificates/Energo_University_grant_v2.jpg",
+        ],
       },
       {
         title: "BOSEPO — 17th Bosnian Science Project Olympiad",
         location: "Sarajevo, Bosnia and Herzegovina",
         result: "Participant, Senior Category",
+        certificateImages: [
+          "/certificates/BOSEPO_participation_2026.jpg",
+          "/certificates/BOSEPO_participation_2026_v2.jpg",
+        ],
       },
       {
         title: "19th International Turkish Language Olympiad",
@@ -169,20 +182,24 @@ export const achievements: AchievementGroup[] = [
         location: "Kyrgyzstan",
         result:
           "Gold Medal, Beginner Level Turkish Language Competition, first place among competing international finalists",
+        certificateImages: ["/certificates/InternationalTurkishLanguageOlympiad_gold_2021.jpg"],
       },
       {
         title: "Turkish Olympiads",
         org: "Yahya Kemal College",
         result: "1st Place",
+        certificateImages: ["/certificates/TurkishOlympiad_1st_place_2021.jpg"],
       },
       {
         title: "Hoobit International Ideathon 2025",
         result: "Certificate of Participation",
+        certificateImages: ["/certificates/Hoobit_Ideathon2025.jpg"],
       },
       {
         title: "Economics Olympiad",
         location: "Struga, North Macedonia 2025–2026",
         result: "Local Round, 23/25 (92%)",
+        certificateImages: ["/certificates/EconomicsOlympiad_2025-2026.jpg"],
       },
       {
         title: "ASEF Albania 2025–2026",
@@ -193,11 +210,13 @@ export const achievements: AchievementGroup[] = [
         title: "FirSTep PBL Competition — Local Round",
         location: "Struga, North Macedonia",
         result: "1st Place",
+        certificateImages: ["/certificates/FirSTep_1st_place_2025.jpg"],
       },
       {
         title: "FirSTep PBL Competition — Local Round",
         location: "Struga, North Macedonia",
         result: "2nd Place",
+        certificateImages: ["/certificates/FirSTep_2nd_place_localround_Struga_2025.jpg"],
       },
       {
         title: "FirSTep PBL Competition — International Round",
@@ -210,11 +229,31 @@ export const achievements: AchievementGroup[] = [
   {
     group: "Chess",
     entries: [
-      { title: "FIDE Arena FIDE Master (AFM)", result: "Official title, 2026" },
-      { title: "FIDE Arena Candidate Master", result: "Official title, 2026" },
-      { title: "FIDE Online Arena Rapid Championship", result: "1st Place, Rapid 10m" },
-      { title: "FIDE Online Arena Rapid Championship", result: "2nd Place, Rapid 10m" },
-      { title: "FOA Rapid 45+10 Championships", result: "3rd Place, Rapid 45m" },
+      {
+        title: "FIDE Arena FIDE Master (AFM)",
+        result: "Official title, 2026",
+        certificateImages: ["/certificates/Chess_FIDE_ArenaMaster.jpg"],
+      },
+      {
+        title: "FIDE Arena Candidate Master",
+        result: "Official title, 2026",
+        certificateImages: ["/certificates/Chess_FIDE_ArenaCandidateMaster.jpg"],
+      },
+      {
+        title: "FIDE Online Arena Rapid Championship",
+        result: "1st Place, Rapid 10m",
+        certificateImages: ["/certificates/Chess_INeedMyTitle_1stPlace.jpg"],
+      },
+      {
+        title: "FIDE Online Arena Rapid Championship",
+        result: "2nd Place, Rapid 10m",
+        certificateImages: ["/certificates/Chess_INeedMyTitle_2ndPlace.jpg"],
+      },
+      {
+        title: "FOA Rapid 45+10 Championships",
+        result: "3rd Place, Rapid 45m",
+        certificateImages: ["/certificates/Chess_FOA_Rapid45_3rdPlace.jpg"],
+      },
     ],
   },
   {
@@ -225,36 +264,107 @@ export const achievements: AchievementGroup[] = [
         org: "Anthropic",
         result: "Certification",
         verifyUrl: "https://verify.skilljar.com/c/5v44e4tytsvo",
+        certificateImages: [
+          "/certificates/Anthropic_AICapabilities_Certificate.png",
+          "/certificates/Anthropic_AICapabilities_VerifyPage.png",
+        ],
       },
-      { title: "Hardware and Upgrade Support", org: "Cisco Networking Academy", result: "Certification" },
+      {
+        title: "Hardware and Upgrade Support",
+        org: "Cisco Networking Academy",
+        result: "Certification",
+        certificateImages: ["/certificates/Cisco_HardwareUpgradeSupport.jpg"],
+      },
       {
         title: "User Experience Design Fundamentals",
         org: "IBM SkillsBuild",
         result: "Certification",
         verifyUrl: "https://www.credly.com/badges/91fccba5-af2a-4691-bdd3-b8d84ae8f48e/public_url",
+        certificateImages: ["/certificates/IBM_UXDesignFundamentals.jpg"],
       },
       {
         title: "Skills for Success",
         org: "#YouthEmpowered (Education Center of Pivara Skopje / Motiva)",
         result: "Certification",
+        certificateImages: ["/certificates/YouthEmpowered_SkillsForSuccess_2025.jpg"],
       },
     ],
   },
   {
     group: "HackerRank Certifications",
     entries: [
-      { title: "Software Engineer", result: "Role certification", verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121" },
-      { title: "Software Engineer Intern", result: "Role certification", verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121" },
-      { title: "Frontend Developer, React", result: "Role certification", verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121" },
-      { title: "Problem Solving — Intermediate", result: "Certification", verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121" },
-      { title: "Problem Solving — Basic", result: "Certification", verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121" },
-      { title: "JavaScript — Intermediate", result: "Certification", verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121" },
-      { title: "JavaScript — Basic", result: "Certification", verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121" },
-      { title: "Node.js — Intermediate", result: "Certification", verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121" },
-      { title: "Node.js — Basic", result: "Certification", verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121" },
-      { title: "Python — Basic", result: "Certification", verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121" },
-      { title: "CSS — Basic", result: "Certification", verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121" },
-      { title: "REST API — Intermediate", result: "Certification", verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121" },
+      {
+        title: "Software Engineer",
+        result: "Role certification",
+        verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121",
+        certificateImages: ["/certificates/HackerRank_SoftwareEngineer.jpg"],
+      },
+      {
+        title: "Software Engineer Intern",
+        result: "Role certification",
+        verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121",
+        certificateImages: ["/certificates/HackerRank_SoftwareEngineerIntern.jpg"],
+      },
+      {
+        title: "Frontend Developer, React",
+        result: "Role certification",
+        verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121",
+        certificateImages: ["/certificates/HackerRank_FrontendDeveloper_React.jpg"],
+      },
+      {
+        title: "Problem Solving — Intermediate",
+        result: "Certification",
+        verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121",
+        certificateImages: ["/certificates/HackerRank_ProblemSolving_Intermediate.jpg"],
+      },
+      {
+        title: "Problem Solving — Basic",
+        result: "Certification",
+        verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121",
+        certificateImages: ["/certificates/HackerRank_ProblemSolving_Basic.jpg"],
+      },
+      {
+        title: "JavaScript — Intermediate",
+        result: "Certification",
+        verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121",
+        certificateImages: ["/certificates/HackerRank_JavaScript_Intermediate.jpg"],
+      },
+      {
+        title: "JavaScript — Basic",
+        result: "Certification",
+        verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121",
+        certificateImages: ["/certificates/HackerRank_JavaScript_Basic.jpg"],
+      },
+      {
+        title: "Node.js — Intermediate",
+        result: "Certification",
+        verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121",
+        certificateImages: ["/certificates/HackerRank_NodeJS_Intermediate.jpg"],
+      },
+      {
+        title: "Node.js — Basic",
+        result: "Certification",
+        verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121",
+        certificateImages: ["/certificates/HackerRank_NodeJS_Basic.jpg"],
+      },
+      {
+        title: "Python — Basic",
+        result: "Certification",
+        verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121",
+        certificateImages: ["/certificates/HackerRank_Python_Basic.jpg"],
+      },
+      {
+        title: "CSS — Basic",
+        result: "Certification",
+        verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121",
+        certificateImages: ["/certificates/HackerRank_CSS_Basic.jpg"],
+      },
+      {
+        title: "REST API — Intermediate",
+        result: "Certification",
+        verifyUrl: "https://www.hackerrank.com/profile/jellyslogoman121",
+        certificateImages: ["/certificates/HackerRank_RestAPI_Intermediate.jpg"],
+      },
     ],
   },
   {
@@ -266,25 +376,97 @@ export const achievements: AchievementGroup[] = [
         org: "VibeOnEdu, in partnership with Sparkasse Bank",
         result: "Completed June 2026",
       },
-      { title: "Fraud & Data Theft", result: "Module completed" },
-      { title: "Digital Trends", result: "Module completed" },
-      { title: "Starting a Business", result: "Module completed" },
-      { title: "Legal Entity Registration", result: "Module completed" },
-      { title: "Saving", result: "Module completed" },
-      { title: "Cards", result: "Module completed" },
-      { title: "Debt", result: "Module completed" },
-      { title: "Security", result: "Module completed" },
-      { title: "E-Banking", result: "Module completed" },
-      { title: "Real Estate", result: "Module completed" },
-      { title: "Personal Finance", result: "Module completed" },
-      { title: "Insurance", result: "Module completed" },
-      { title: "Leasing", result: "Module completed" },
-      { title: "Finance", result: "Module completed" },
-      { title: "Investing", result: "Module completed" },
+      {
+        title: "Fraud & Data Theft",
+        result: "Module completed",
+        certificateImages: ["/certificates/VibeOnEdu_FraudDataTheft_MK.jpg"],
+      },
+      {
+        title: "Digital Trends",
+        result: "Module completed",
+        certificateImages: ["/certificates/VibeOnEdu_DigitalTrends_MK.jpg"],
+      },
+      {
+        title: "Starting a Business",
+        result: "Module completed",
+        certificateImages: ["/certificates/VibeOnEdu_StartingBusiness_MK.jpg"],
+      },
+      {
+        title: "Legal Entity Registration",
+        result: "Module completed",
+        certificateImages: ["/certificates/VibeOnEdu_LegalEntityRegistration_MK.jpg"],
+      },
+      {
+        title: "Saving",
+        result: "Module completed",
+        certificateImages: ["/certificates/VibeOnEdu_Saving_MK.jpg"],
+      },
+      {
+        title: "Cards",
+        result: "Module completed",
+        certificateImages: ["/certificates/VibeOnEdu_Cards_MK.jpg"],
+      },
+      {
+        title: "Debt",
+        result: "Module completed",
+        certificateImages: ["/certificates/VibeOnEdu_Debt_MK.jpg"],
+      },
+      {
+        title: "Security",
+        result: "Module completed",
+        certificateImages: ["/certificates/VibeOnEdu_Security_MK.jpg"],
+      },
+      {
+        title: "E-Banking",
+        result: "Module completed",
+        certificateImages: ["/certificates/VibeOnEdu_EBanking_MK.jpg"],
+      },
+      {
+        title: "Real Estate",
+        result: "Module completed",
+        certificateImages: ["/certificates/VibeOnEdu_RealEstate_MK.jpg"],
+      },
+      {
+        title: "Personal Finance",
+        result: "Module completed",
+        certificateImages: ["/certificates/VibeOnEdu_PersonalFinance_MK.jpg"],
+      },
+      {
+        title: "Insurance",
+        result: "Module completed",
+        certificateImages: ["/certificates/VibeOnEdu_Insurance_MK.jpg"],
+      },
+      {
+        title: "Leasing",
+        result: "Module completed",
+        certificateImages: ["/certificates/VibeOnEdu_Leasing_MK.jpg"],
+      },
+      {
+        title: "Finance",
+        result: "Module completed",
+        certificateImages: ["/certificates/VibeOnEdu_Finance_MK.jpg"],
+      },
+      {
+        title: "Investing",
+        result: "Module completed",
+        certificateImages: ["/certificates/VibeOnEdu_Investing_MK.jpg"],
+      },
       {
         title: "Badges",
         result:
           "Financial Pioneer, Conqueror of Challenges, Investor in the Future, Winning Mindset, Future CFO",
+        certificateImages: [
+          "/certificates/VibeOnEdu_badge_FinancialPioneer_ENG.jpg",
+          "/certificates/VibeOnEdu_badge_ConquerorOfChallenges_ENG.jpg",
+          "/certificates/VibeOnEdu_badge_InvestorInFuture_ENG.jpg",
+          "/certificates/VibeOnEdu_badge_WinningMindset_ENG.jpg",
+          "/certificates/VibeOnEdu_badge_FutureCFO_ENG.jpg",
+          "/certificates/VibeOnEdu_course_01_MK.jpg",
+          "/certificates/VibeOnEdu_course_02_MK.jpg",
+          "/certificates/VibeOnEdu_course_03_MK.jpg",
+          "/certificates/VibeOnEdu_course_04_MK.jpg",
+          "/certificates/VibeOnEdu_course_05_MK.jpg",
+        ],
       },
     ],
   },

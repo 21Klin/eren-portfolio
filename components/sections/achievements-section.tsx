@@ -59,7 +59,9 @@ export function AchievementsSection() {
 
 function AchievementEntry({ entry }: { entry: Achievement }) {
   const [expanded, setExpanded] = useState(false);
+  const [activeImage, setActiveImage] = useState(0);
   const meta = [entry.org, entry.location].filter(Boolean).join(" — ");
+  const images = entry.certificateImages ?? [];
 
   return (
     <div className="border border-accent/20 bg-surface/60 p-4 transition-colors hover:border-accent/40">
@@ -88,7 +90,7 @@ function AchievementEntry({ entry }: { entry: Achievement }) {
         {entry.result}
       </p>
 
-      {(entry.verifyUrl || entry.certificateImage) && (
+      {(entry.verifyUrl || images.length > 0) && (
         <div className="mt-2 flex gap-4 pl-6">
           {entry.verifyUrl && (
             <a
@@ -100,29 +102,53 @@ function AchievementEntry({ entry }: { entry: Achievement }) {
               Verify &gt;&gt;
             </a>
           )}
-          {entry.certificateImage && (
+          {images.length > 0 && (
             <button
               type="button"
-              onClick={() => setExpanded(true)}
+              onClick={() => {
+                setActiveImage(0);
+                setExpanded(true);
+              }}
               className="font-mono text-[0.65rem] uppercase tracking-widest text-accent hover:underline"
             >
-              View certificate &gt;&gt;
+              {images.length > 1 ? `View certificates (${images.length}) >>` : "View certificate >>"}
             </button>
           )}
         </div>
       )}
 
-      {expanded && entry.certificateImage && (
+      {expanded && images.length > 0 && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-background/90 p-8"
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-background/90 p-8"
           onClick={() => setExpanded(false)}
         >
           {/* eslint-disable-next-line @next/next/no-img-element -- dynamic per-achievement asset path, dimensions unknown */}
           <img
-            src={entry.certificateImage}
+            src={images[activeImage]}
             alt={entry.title}
-            className="max-h-full max-w-full border border-accent/40"
+            className="max-h-[80vh] max-w-full border border-accent/40"
           />
+          {images.length > 1 && (
+            <div
+              className="flex flex-wrap items-center justify-center gap-2"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {images.map((src, i) => (
+                <button
+                  key={src}
+                  type="button"
+                  onClick={() => setActiveImage(i)}
+                  className={`border px-2 py-1 font-mono text-[0.6rem] uppercase tracking-widest transition-colors ${
+                    i === activeImage
+                      ? "border-accent bg-accent/10 text-accent"
+                      : "border-accent/20 text-muted hover:border-accent/40 hover:text-foreground"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
