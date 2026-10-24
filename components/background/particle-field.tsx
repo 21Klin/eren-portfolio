@@ -9,6 +9,7 @@ import { ACCENT_COLOR } from "@/lib/theme";
 import { zoneColor } from "@/lib/particle-zone-color";
 import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 import { useMediaQuery } from "@/lib/use-media-query";
+import { useBootStatus } from "@/lib/boot-status";
 
 const PARTICLE_COUNT_DESKTOP = 900;
 const PARTICLE_COUNT_MOBILE = 320;
@@ -290,6 +291,14 @@ function PostProcessing() {
 }
 
 export function ParticleBackground() {
+  const { locatorIntroActive } = useBootStatus();
+
+  // The locator intro's own full-screen canvas sits on top of this one and
+  // fully hides it behind an opaque black overlay anyway — staying unmounted
+  // meanwhile means only one WebGL context/render loop is ever active at a
+  // time, instead of two competing for the same frame budget.
+  if (locatorIntroActive) return null;
+
   return (
     <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden="true">
       <Canvas

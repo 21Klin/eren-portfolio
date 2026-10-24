@@ -19,6 +19,9 @@ type SoundEngineContextValue = {
   playTick: () => void;
   playHover: () => void;
   playConnectionEstablished: () => void;
+  unmuteForIntro: () => void;
+  startAmbientScore: () => void;
+  stopAmbientScore: () => void;
 };
 
 const SoundEngineContext = createContext<SoundEngineContextValue | null>(
@@ -231,6 +234,175 @@ export function SoundEngineProvider({ children }: { children: ReactNode }) {
     });
   }, [canPlay]);
 
+  // Locator intro: a user gesture (the INITIALIZE click) both unlocks the
+  // AudioContext and opts the visit into sound — there's no separate mute
+  // toggle to hunt for afterward. Distinct from `unlock`, which only resumes
+  // the context; this also forces the stored preference to unmuted.
+  const unmuteForIntro = useCallback(() => {
+    unlock();
+    if (readStoredMuted()) writeStoredMuted(false);
+  }, [unlock]);
+
+  // Continuous cinematic pad under the whole locator sequence — three
+  // detuned low oscillators (a root + fifth + soft octave shimmer) through a
+  // slowly LFO-swept lowpass filter, plus a very quiet filtered-noise "space
+  // air" bed. Everything sine/triangle with slow envelopes on purpose: nothing
+  // here should read as a synth blip, just a low evolving drone. Nodes are
+  // built once per start/stop cycle and kept in a ref so the mute-effect
+  // below can ride the same gain node live, rather than gating at trigger
+  // time the way the one-shot sounds above do.
+  const ambientRef = useRef<{
+    gain: GainNode;
+    targetGain: number;
+    oscillators: OscillatorNode[];
+    noiseSource: AudioBufferSourceNode | null;
+  } | null>(null);
+
+  const startAmbientScore = useCallback(() => {
+    const ctx = getAudioContext();
+    if (!ctx || ambientRef.current) return;
+    const master = masterGainRef.current!;
+    const now = ctx.currentTime;
+    const targetGain = 0.055;
+
+    const droneGain = ctx.createGain();
+    droneGain.gain.value = 0.0001;
+    droneGain.connect(master);
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.value = 700;
+    filter.Q.value = 0.4;
+    filter.connect(droneGain);
+
+    const lfo = ctx.createOscillator();
+    lfo.type = "sine";
+    lfo.frequency.value = 0.045;
+    const lfoDepth = ctx.createGain();
+    lfoDepth.gain.value = 260;
+    lfo.connect(lfoDepth);
+    lfoDepth.connect(filter.frequency);
+    lfo.start(now);
+
+    const oscillators: OscillatorNode[] = [lfo];
+    const droneVoices: [number, OscillatorType, number][] = [
+      [55, "sine", 0.5],
+      [82.41, "sine", 0.3],
+      [110, "triangle", 0.16],
+    ];
+    for (const [freq, type, level] of droneVoices) {
+      const osc = ctx.createOscillator();
+      osc.type = type;
+      osc.frequency.value = freq;
+      const voiceGain = ctx.createGain();
+      voiceGain.gain.value = level;
+      osc.connect(voiceGain);
+      voiceGain.connect(filter);
+      osc.start(now);
+      oscillators.push(osc);
+    }
+
+    // Slow tremolo on a quiet high shimmer voice — the one "twinkle" element,
+    // kept subtle and sine-only so it reads as cinematic sparkle, not sci-fi
+    // sonar.
+    const shimmer = ctx.createOscillator();
+    shimmer.type = "sine";
+    shimmer.frequency.value = 440;
+    const shimmerGain = ctx.createGain();
+    shimmerGain.gain.value = 0.02;
+    const tremolo = ctx.createOscillator();
+    tremolo.type = "sine";
+    tremolo.frequency.value = 0.12;
+    const tremoloDepth = ctx.createGain();
+    tremoloDepth.gain.value = 0.018;
+    tremolo.connect(tremoloDepth);
+    tremoloDepth.connect(shimmerGain.gain);
+    shimmer.connect(shimmerGain);
+    shimmerGain.connect(filter);
+    shimmer.start(now);
+    tremolo.start(now);
+    oscillators.push(shimmer, tremolo);
+
+    // Filtered brown-noise bed for a faint "cabin air" texture under the
+    // drone — generated once, looped, never re-synthesized per frame.
+    const noiseBufferSeconds = 4;
+    const noiseBuffer = ctx.createBuffer(
+      1,
+      ctx.sampleRate * noiseBufferSeconds,
+      ctx.sampleRate,
+    );
+    const data = noiseBuffer.getChannelData(0);
+    let lastSample = 0;
+    for (let i = 0; i < data.length; i++) {
+      const white = Math.random() * 2 - 1;
+      lastSample = (lastSample + 0.02 * white) / 1.02;
+      data[i] = lastSample * 3.2;
+    }
+    const noiseSource = ctx.createBufferSource();
+    noiseSource.buffer = noiseBuffer;
+    noiseSource.loop = true;
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = "lowpass";
+    noiseFilter.frequency.value = 380;
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.value = 0.35;
+    noiseSource.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(filter);
+    noiseSource.start(now);
+
+    ambientRef.current = {
+      gain: droneGain,
+      targetGain,
+      oscillators,
+      noiseSource,
+    };
+
+    if (unlockedRef.current && !mutedRef.current) {
+      droneGain.gain.linearRampToValueAtTime(targetGain, now + 2.2);
+    }
+  }, [getAudioContext]);
+
+  const stopAmbientScore = useCallback(() => {
+    const amb = ambientRef.current;
+    const ctx = ctxRef.current;
+    if (!amb || !ctx) return;
+    const now = ctx.currentTime;
+    amb.gain.gain.cancelScheduledValues(now);
+    amb.gain.gain.setValueAtTime(amb.gain.gain.value, now);
+    amb.gain.gain.linearRampToValueAtTime(0.0001, now + 1.1);
+    const oscillators = amb.oscillators;
+    const noiseSource = amb.noiseSource;
+    setTimeout(() => {
+      oscillators.forEach((osc) => {
+        try {
+          osc.stop();
+        } catch {
+          // already stopped
+        }
+      });
+      try {
+        noiseSource?.stop();
+      } catch {
+        // already stopped
+      }
+    }, 1200);
+    ambientRef.current = null;
+  }, []);
+
+  // Lets the ambient score respond live to the mute toggle instead of only
+  // gating at the moment it starts — a continuous bed, unlike the one-shot
+  // sounds above, needs to actually go quiet mid-playback.
+  useEffect(() => {
+    const amb = ambientRef.current;
+    const ctx = ctxRef.current;
+    if (!amb || !ctx) return;
+    const now = ctx.currentTime;
+    amb.gain.gain.cancelScheduledValues(now);
+    amb.gain.gain.setValueAtTime(amb.gain.gain.value, now);
+    amb.gain.gain.linearRampToValueAtTime(muted ? 0.0001 : amb.targetGain, now + 0.4);
+  }, [muted]);
+
   useEffect(() => {
     playHoverRef.current = playHover;
   }, [playHover]);
@@ -250,6 +422,9 @@ export function SoundEngineProvider({ children }: { children: ReactNode }) {
         playTick,
         playHover,
         playConnectionEstablished,
+        unmuteForIntro,
+        startAmbientScore,
+        stopAmbientScore,
       }}
     >
       {children}

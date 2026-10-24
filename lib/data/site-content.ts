@@ -12,6 +12,12 @@ export const hero = {
   ],
 };
 
+export const locatorIntro = {
+  gateLabel: "INITIALIZE",
+  identityLines: ["EREN MURTISHI", "LOCATED"],
+  targetLabel: "TARGET LOCKED",
+};
+
 export const about = `I build systems that think, trade, serve, and run — from the code down to the copper.
 
 Egy AI is a crypto trading platform I founded and lead as CEO, built around a genetic algorithm trading bot of my own design. Rather than following fixed rules, the bot maintains a population of trading strategies encoded as digital "genomes" — each one a distinct set of parameters governing entry/exit logic, risk tolerance, and market signal weighting. Every generation, strategies are evaluated against live and historical market data, the strongest performers survive and reproduce through crossover and mutation, and the weak get culled. Over successive generations, the population evolves toward strategies no human explicitly programmed — the market selects the trader, not the other way around.

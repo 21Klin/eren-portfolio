@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { BootSequence } from "@/components/boot/boot-sequence";
+import { LocatorIntro } from "@/components/locator-intro/locator-intro";
 import { clearBootSeen } from "@/lib/boot-session";
 import { useBootStatus } from "@/lib/boot-status";
 
 export function BootController() {
   const [bootKey, setBootKey] = useState(0);
-  const { markComplete, reset } = useBootStatus();
+  const [locatorDone, setLocatorDone] = useState(false);
+  const { markComplete, reset, markLocatorIntroDone } = useBootStatus();
 
   const handleReplay = () => {
     clearBootSeen();
@@ -15,9 +17,17 @@ export function BootController() {
     setBootKey((k) => k + 1);
   };
 
+  const handleLocatorComplete = () => {
+    setLocatorDone(true);
+    markLocatorIntroDone();
+  };
+
   return (
     <>
-      <BootSequence key={bootKey} onComplete={markComplete} />
+      {/* Plays once per page load, every visit (no sessionStorage skip) —
+          unlike BootSequence below, which it hands off into. */}
+      {!locatorDone && <LocatorIntro onComplete={handleLocatorComplete} />}
+      {locatorDone && <BootSequence key={bootKey} onComplete={markComplete} />}
       <button
         type="button"
         onClick={handleReplay}
